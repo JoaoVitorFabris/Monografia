@@ -3,9 +3,12 @@
 Created on Sun Mar  6 12:31:35 2022
 
 @author: joaov
+
+Testes com o pacote de cálculo de fluxo de potência com pandapower 
 """
 
 import pandapower as pp
+
 #create empty net
 net = pp.create_empty_network() 
 
@@ -35,9 +38,23 @@ pp.create_poly_cost(net, element=g2, et="gen", cp1_eur_per_mw=30)
 
 pp.runopp(net)
 
-print("Resultados geradores \n", net.res_gen, "\n")
+print("Resultados geradores: \n", net.res_gen,"\n")
 
-print(net.res_line)
-print(net.res_load)
-print(net.res_bus)
-print(net.res_cost)
+print("Resultados linhas: \n", net.res_line,"\n")
+print("Resultados carga: \n", net.res_load,"\n")
+print("Resultados barras: \n", net.res_bus,"\n")
+print("Resultados custo: \n", net.res_cost,"\n")
+
+# CASE 9
+
+ieee9 = pp.create_empty_network()
+ieee9 = pp.networks.case9()
+pp.runpp(ieee9)
+
+print("Resultados geradores: \n", ieee9.res_gen,"\n")
+
+print("Resultados linhas: \n", ieee9.res_line,"\n")
+print("Resultados carga: \n", ieee9.res_load,"\n")
+print("Resultados barras: \n", ieee9.res_bus,"\n")
+
+
