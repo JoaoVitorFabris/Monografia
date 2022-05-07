@@ -78,11 +78,11 @@ regressor = Model(inputs = camada_entrada,
                   outputs = [out4,out5,out7,out9,out10,out11,out12,out13,out14])
 regressor.compile(optimizer = 'adam', loss = 'mse')
 regressor.fit(baseInput, [DL4,DL5,DL7,DL9,DL10,DL11,DL12,DL13,DL14],
-              epochs = 15000, batch_size = 100)
+              epochs = 15000, batch_size = 20) #Batch_size = quantidade de testes antes de atualizar os pesos
 
 
-#out4, out5, out7, out9, out10, out11, out12, out13, out14 = regressor.predict(baseInput)
-Predicao = regressor.predict(baseInput)
+out4, out5, out7, out9, out10, out11, out12, out13, out14 = regressor.predict(baseInput)
+#Predicao = regressor.predict(baseInput)
 
 #Predicao = pd.DataFrame((out4, out5, out7, out9, out10, out11, out12, out13, out14), columns=['out4', 'out5', 'out7', 'out9', 'out10', 'out11', 'out12', 'out13', 'out14'])
 
@@ -92,10 +92,20 @@ Predicao = np.concatenate((out4, out5, out7, out9, out10, out11, out12, out13, o
 IndiceDL = baseOutput
 IndicePrevistoPelaRNA = Predicao
 
+# IndiceDL.mean()
+# IndicePrevistoPelaRNA.mean()
 
 
 
 
+# # ==================== CRIAR ESTRUTURA DA RNA EM JSON ====================== #
+
+# regressao_json = regressor.to_json() # Cria variável JSON
+# with open('Regressao1.json','w') as json_file: json_file.write(regressao_json) # Salvar em disco
+
+# # ==================== SALVAR OS PESOS ===================================== #
+
+# regressor.save_weights('regressor_v1.h5') #RNA - V1
 
 
 
