@@ -39,7 +39,7 @@ def criarRede():
     
     return regressor
 
-regressao = KerasRegressor(model = criarRede, epochs = 10, batch_size = 50)
+regressao = KerasRegressor(model = criarRede, epochs = 10, batch_size = 5)
 
 
 results = cross_validate(estimator = regressao, X = baseInput, y = baseOutput, cv=10)
@@ -47,23 +47,7 @@ a = results['test_score']
 b = a.mean()
 c = a.std()
 
-previsao = regressao.predict(baseOutput)
-
-
+fim = time.time()
 print(fim - inicio)
 
-
-# # ==================== CRIAR ESTRUTURA DA RNA EM JSON ====================== #
-
-# regressao_json = regressao.to_json() # Cria variável JSON
-# with open('Regressao3.json','w') as json_file: json_file.write(regressao_json) # Salvar em disco
-
-# # ==================== SALVAR OS PESOS ===================================== #
-
-# regressor.save_weights('regressor_v3.h5') #RNA - V3
-
-
-
-# ==================== SALVAR OS PESOS ===================================== #
-
-# estimator = KerasRegressor(build_fn=regressor, nb_epoch=100, batch_size=10, verbose=0)
+# previsao = regressao.predict(baseInput)

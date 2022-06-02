@@ -3,8 +3,6 @@ Com separação treinamento-teste (Holdout)
 
 """
 
-import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import pandas as pd
 
@@ -20,10 +18,23 @@ baseInput = baseInput.loc[:, ~baseInput.columns.isin(DelColIn)]
 baseOutput = baseOutput.loc[:, ~baseOutput.columns.isin(DelColOut)]
 
 
+# Normalização dos dados. Ver: https://www.tensorflow.org/tutorials/keras/regression?hl=pt-br
+
+def norm(x):
+  return (x - classe_stats['mean']) / classe_stats['std']
+
+def disnorm(x):
+  return (x*classe_stats['std'] + classe_stats['mean']) 
+
+classe_stats = baseOutput.describe().transpose()
+
+baseOutputNorm = norm(baseOutput)
+
+
 from sklearn.model_selection import train_test_split
 
 #20% dos dados para teste e 80% para treinamento
-previsores_treinamento, previsores_teste, classe_treinamento, classe_teste = train_test_split(baseInput, baseOutput, test_size=0.20)
+previsores_treinamento, previsores_teste, classe_treinamento, classe_teste = train_test_split(baseInput, baseOutputNorm, test_size=0.20)
 
 
 import keras
@@ -45,25 +56,32 @@ hist = pd.DataFrame(history.history)
 hist['epoch'] = history.epoch           # Armazena os valores dos erros no treinamento
 hist.tail()
 
-print(history.params)
-print(history.history.keys())
-previsoes = regressor.predict(previsores_teste)
+# print(history.params)
+# print(history.history.keys())
 
-import matplotlib.pyplot as plt
+previsoesNorm = regressor.predict(previsores_teste)
 
-x = hist['epoch']
-y = hist['loss']
+previsoesNorm = pd.DataFrame(previsoesNorm)
 
-# plot
-fig, ax = plt.subplots()
 
-ax.plot(x, y, linewidth=1.0)
-
-plt.show()
-
+# previsoesNorm = np.array(previsoesNorm)
 resultado = regressor.evaluate(previsores_teste, classe_teste)
 
-print(resultado)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
