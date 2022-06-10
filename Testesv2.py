@@ -3,10 +3,8 @@ Com separação treinamento-teste (Holdout)
 
 """
 
-import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-
 import pandas as pd
+import myfuncs as mf # Arquivo 'myFuncs.py'
 
 baseInput = pd.read_csv('Inputs_VOPQ.csv')
 baseOutput = pd.read_csv('Output_DL2.csv')
@@ -20,52 +18,74 @@ baseInput = baseInput.loc[:, ~baseInput.columns.isin(DelColIn)]
 baseOutput = baseOutput.loc[:, ~baseOutput.columns.isin(DelColOut)]
 
 
+classe_stats = baseOutput.describe().transpose()
+baseOuputNorm = mf.norm(baseOutput, classe_stats)
+
 from sklearn.model_selection import train_test_split
 
+
 #20% dos dados para teste e 80% para treinamento
-previsores_treinamento, previsores_teste, classe_treinamento, classe_teste = train_test_split(baseInput, baseOutput, test_size=0.20)
+test_size = 0.2
+previsores_treinamento, previsores_teste, classe_treinamento, classe_teste = train_test_split(baseInput, baseOuputNorm, test_size=test_size)
 
 
-import keras
 from keras.models import Sequential
 from keras.layers import Dense
 
+dim_input = str(list(baseInput.shape))
+dim_output = str(list(baseOutput.shape))
+
+input_dim = len(baseInput.columns)
+output_dim = len(baseOutput.columns)
+
+nOculta1 = round((input_dim+output_dim)/2)
+nOculta2 = round((input_dim+output_dim)/2)
+
+activationO1 = 'relu'
+activationO2 = 'relu'
+activationOut = 'linear'
+
+optimizer = 'adam'
+loss = 'mae'
+
+batch_size = 30
+epochs = 700
+
 regressor = Sequential()
-regressor.add(Dense(units = 14, activation = 'linear', input_dim = 18))
-regressor.add(Dense(units = 14, activation = 'linear'))
-regressor.add(Dense(units = 14, activation = 'linear'))
-regressor.add(Dense(units = 9, activation = 'linear'))
 
-regressor.compile(optimizer = 'adam', loss = 'mean_absolute_error')
+regressor.add(Dense(units = nOculta1, activation = activationO1, input_dim = input_dim))
+regressor.add(Dense(units = nOculta2, activation = activationO2))
+regressor.add(Dense(units = output_dim, activation = activationOut))
 
-regressor.summary()
-#history = regressor.fit(previsores_treinamento, previsores_teste, batch_size=30, epochs=500)
-history = regressor.fit(previsores_treinamento, classe_treinamento, batch_size=30, epochs=500)
+regressor.compile(optimizer = optimizer, loss = loss)
+
+#regressor.summary()
+history = regressor.fit(previsores_treinamento, classe_treinamento, batch_size=batch_size, epochs=epochs)
 hist = pd.DataFrame(history.history)
 hist['epoch'] = history.epoch           # Armazena os valores dos erros no treinamento
-hist.tail()
+#hist.tail()
 
 print(history.params)
 print(history.history.keys())
 previsoes = regressor.predict(previsores_teste)
 
-import matplotlib.pyplot as plt
+#previsoesDisnorm = mf.disnorm(previsoes, classe_stats)
 
-x = hist['epoch']
-y = hist['loss']
-
-# plot
-fig, ax = plt.subplots()
-
-ax.plot(x, y, linewidth=1.0)
-
-plt.show()
 
 resultado = regressor.evaluate(previsores_teste, classe_teste)
 
-print(resultado)
+a = abs(previsoes - classe_teste).mean().tolist()
+b = [dim_input, dim_output, nOculta1, nOculta2, activationO1, activationO2, activationOut,
+     optimizer, loss, batch_size, epochs]
+
+#b = a.describe().transpose() # Só funciona se retirar o "tolist()"
 
 
+mf.saveXLSX(a,b)
+
+
+
+# df.to_excel(r'Resultados\teste.xlsx')
 
 
 
