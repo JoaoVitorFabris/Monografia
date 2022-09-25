@@ -1,5 +1,6 @@
+import pandas as pd
+
 def saveXLSX(a,b):
-    import pandas as pd
     diretorio = 'Resultados\\teste.xlsx'
 
     Mae = pd.read_excel(diretorio, sheet_name='MAE', index_col=0)
@@ -13,16 +14,35 @@ def saveXLSX(a,b):
         Params.to_excel(writer, sheet_name='Params')
 
 
-def norm(x, classe_stats):
-    normVal = (x - classe_stats['mean']) / classe_stats['std']
-    return(normVal)
+def norm(x, stats):
+    normVal = (x - stats['mean']) / stats['std']
+    flag_norm = True
+    return(normVal,flag_norm)
 
+def norm2(x, stats):
+    Vmax = stats['max']
+    Vmin = stats['min']
+    
+    normVal = (x - Vmin) / (Vmax-Vmin)
+    flag_norm = True
+    return(normVal,flag_norm)
 
-def disnorm(x, classe_stats):
+def disnorm(x, stats):
+    x = pd.DataFrame(x)
+    aaa = len(x.columns())
+    mean = stats['mean']
+    std = stats['std']
+    disnormVal = stats['mean'] + stats['std']*x
+    
+    return(disnormVal)
+
+# Não funciona
+
+def disnorm2(x, stats):
     # Corrigir para percorrer cada valor e muliplicar
-    df_cstats = classe_stats.copy()
-    df_cstats_std = df_cstats['std']
-    df_cstats_mean = df_cstats['mean']
+    df_cstats = stats.copy()
+    df_cstats_std = stats['std']
+    df_cstats_mean = stats['mean']
     a = len(df_cstats.index.values)
     b = df_cstats.columns
     c = 1
